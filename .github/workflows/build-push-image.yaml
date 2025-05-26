@@ -12,8 +12,6 @@ jobs:
       contents: read
       id-token: write
       deployments: write
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository }}/runner-deploy
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -25,11 +23,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REGISTRY_SECRET }}
 
+      - name: Set image name
+        id: vars
+        run: |
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "image=ghcr.io/${REPO_LOWER}/runner-deploy" >> "$GITHUB_OUTPUT"
+
+
       - name: Build Docker Image
         run: |
+          IMAGE_NAME=${{ steps.vars.outputs.image }}
           docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} images
 
       - name: Push Docker image
         run: |
+          IMAGE_NAME=${{ steps.vars.outputs.image }}
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:${{ github.sha }}
