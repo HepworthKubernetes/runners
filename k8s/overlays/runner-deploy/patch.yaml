@@ -11,7 +11,7 @@ spec:
         - name: ghcr-creds
       containers:
         - name: runner
-          image: ghcr.io/travishepworth/kubernetes/github-runner:latest
+          image: ghcr.io/hepworthkubernetes/runners/runner-deploy:latest
           env:
             - name: LABELS
               value: deploy
