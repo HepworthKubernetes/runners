@@ -1,0 +1,13 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gh-runner
+spec:
+  template:
+    spec:
+      containers:
+        - name: runner
+          env:
+            - name: LABELS
+              value: gh-runner-b,build,test,lint,git-ops

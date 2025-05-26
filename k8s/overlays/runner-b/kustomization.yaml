@@ -1,0 +1,6 @@
+nameSuffix: -b
+namespace: github-runners
+resources:
+  - ../../base
+patches:
+  - path: patch.yaml

@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gh-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gh-runner
+  template:
+    metadata:
+      labels:
+        app: gh-runner
+    spec:
+      serviceAccountName: gh-runner-sa
+      volumes:
+        - name: containerdsock
+          hostPath:
+            path: /run/containerd/containerd.sock
+        - name: workdir
+          hostPath:
+            path: /actions-runner/_work
+        - name: hosttmp
+          hostPath:
+            path: /tmp
+            type: Directory
+      containers:
+        - name: runner
+          image: myoung34/github-runner:latest
+          env:
+            - name: START_DOCKER_SERVICE
+              value: "true"
+            - name: ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-runner
+                  key: ACCESS_TOKEN
+            - name: RUNNER_SCOPE
+              value: "org"
+            - name: ORG_NAME
+              value: "HepworthKubernetes"
+            - name: RUNNER_NAME_PREFIX
+              value: epic-
+            - name: RUNNER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RUNNER_WORKDIR
+              value: /actions-runner/_work
+          volumeMounts:
+            - name: containerdsock
+              mountPath: /run/containerd/containerd.sock
+            - name: workdir
+              mountPath: /actions-runner/_work
+            - name: hosttmp
+              mountPath: /tmp
+          securityContext:
+            privileged: true  # Required if you're enabling docker
+          resources:
+            limits:
+              cpu: 2
+              memory: 512Mi
+            requests:
+              cpu: 2
+              memory: 256Mi

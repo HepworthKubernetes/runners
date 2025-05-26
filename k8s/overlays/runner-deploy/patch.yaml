@@ -1,0 +1,17 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gh-runner
+spec:
+  template:
+    spec:
+      serviceAccountName: gh-runner-deploy-sa
+      imagePullSecrets:
+        - name: ghcr-creds
+      containers:
+        - name: runner
+          image: ghcr.io/travishepworth/kubernetes/github-runner:latest
+          env:
+            - name: LABELS
+              value: deploy
